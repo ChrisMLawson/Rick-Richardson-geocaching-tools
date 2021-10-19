@@ -1,0 +1,129 @@
+#!/bin/bash
+
+PROGNAME="$0"
+
+usage() {
+	cat <<EOF
+NAME
+    `basename $PROGNAME` - Do OCR on an image file
+
+SYNOPSIS
+    `basename $PROGNAME` [options] image
+
+DESCRIPTION
+    Do OCR on an image file using tesseract.
+
+OPTIONS
+    -l lang	Language, including:
+
+		pigpen (pig)
+		pigpen2
+		dancing-men (men) using rumkin font
+		men2 using dcode font
+		aurebesh (starwars)
+
+    -D lvl	Debug level
+
+EXAMPLES
+    Convert dancing men using http://rumkin.com font:
+
+	$ geo-ocr -l men xxx.jpg
+	Tesseract Open Source OCR Engine v3.02.02 with Leptonica
+	NORTHFIFTYNINEDEGREESFO
+	RTY SEVENDOTNINEHUNDREDS
+	EVENTYFIVEEASTHSEVENTEEN
+	DEGREESTHIRTYSEVE NDOTEI
+	GHTY FIVEDOTDOT DOTDOTDOT
+
+    Convert dancing men using https://www.dcode.fr font:
+
+	$ geo-ocr -l men2 ~/tmp/0.jpeg
+	NORTHFOURT
+	YONEELEVEN
+	POINTONEHU
+	NDREDSIXTY
+	SEVENWESTE
+	IGHTYONETW
+	ENTYPOINTF
+	OURHUNDRED
+	TWENTYONE
+
+    Convert aurebesh (Star Wars) language, https://coord.info/GC7T4RV:
+
+	$ geo-ocr -l aurebesh 0.png
+	Congratulations you have figured out to use Pe Galactic basic writing
+	system of Purebesh from Star wars to solve t puzzle learn the final
+	 ...
+
+FILES
+    /usr/share/tesseract/tessdata/*.traineddata
+
+    /usr/local/share/tessdata/*.traineddata
+
+    /home/rick/proj/pigpen/
+
+SEE ALSO
+    http://www.rkkda.com/sw/ocr/
+EOF
+
+	exit 1
+}
+
+#
+#       Report an error and exit
+#
+error() {
+	echo "`basename $PROGNAME`: $1" >&2
+	exit 1
+}
+
+debug() {
+	if [ $DEBUG -ge $1 ]; then
+	    echo "`basename $PROGNAME`: $2" >&2
+	fi
+}
+
+#
+#       Process the options
+#
+DEBUG=0
+LANG=eng
+while getopts "l:D:h?" opt
+do
+	case $opt in
+	l)	LANG="$OPTARG"
+		# some aliases for old code
+		case "$LANG" in
+		pigpen)		LANG=pig;;
+		danc*)		LANG=men;;
+		star*)		LANG=aurebesh;;
+		esac
+		;;
+	D)	DEBUG="$OPTARG";;
+	h|\?)	usage;;
+	esac
+done
+shift `expr $OPTIND - 1`
+
+if ! type tesseract >/dev/null 2>&1; then
+    error "tesseract not found! dnf install tesseract leptonica"
+fi
+if ! test -d /usr/include/leptonica; then
+    error "leptonica not found! dnf install tesseract leptonica"
+fi
+
+if [ $# = 0 ]; then
+    usage
+fi
+
+#
+#	Main Program
+#
+if [ "$LANG" = pig ]; then
+    echo "tesseract: ##XX order:"
+    tesseract $1 stdout -l $LANG
+    echo "tesseract: #X#X order:"
+    tesseract $1 stdout -l $LANG | tr 'PHNKQJRSTUVLMO' 'THROUNVJKLMPQS'
+else
+    tesseract $1 stdout -l $LANG
+fi

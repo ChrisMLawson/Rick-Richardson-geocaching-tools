@@ -1,0 +1,180 @@
+#!/bin/sh
+
+PROGNAME="$0"
+
+usage() {
+	cat <<EOF
+NAME
+    `basename $PROGNAME` - Search for words in /usr/share/dict/words
+
+SYNOPSIS
+    `basename $PROGNAME` [options] letters ...
+
+DESCRIPTION
+    Search for words in /usr/share/dict/words.
+
+    If 'letters' is prefixed by '!' or '^', then complement the search.
+
+    If 'letters' is the alternation '|',  then match either alternate
+    expression.
+
+OPTIONS
+    -w words	Take words from file
+    -w french	a.k.a. -w ~/lib/geo/french
+    -w german	a.k.a. -w ~/lib/geo/ngerman
+    -w spanish	a.k.a. -w ~/lib/geo/spanish
+    -D lvl	Debug level
+
+EXAMPLE
+    Search for 4 letter words:
+
+	$ geo-crossword ade asw . bd
+	asgd
+	awed
+	dabb
+	dand
+	darb
+	dard
+	daub
+	daud
+
+    Search in french:
+
+	$ geo-crossword -w ~/lib/geo/french aeou mtcrpaeou p ou t aeou mtcrp
+	amputer
+	empoter
+
+	$ geo-crossword -w french aeou mtcrpaeou p ou t aeou mtcrp
+	amputer
+	empoter
+
+    Search in german:
+
+	$ geo-crossword -w german a lz . e
+	alle
+	alte
+
+    Search in spanish:
+
+	$ geo-crossword -w spanish a avr a . a
+	arada
+	arana
+	avara
+
+    Don't search for 'ilstcg':
+
+	$ geo-crossword z '!ilstcg' ^ilstcg a ^ilstcg
+	zakah
+	zaman
+	zoeae
+	zonar
+
+    Search for 3 letter words using alternation:
+
+	$ geo-crossword 'ce|ll|oa|ki' der
+	cee
+	kid
+	kie
+	kir
+	oad
+	oar
+
+SEE ALSO
+    http://www.a2zwordfinder.com/crossword_dictionary.html
+
+    https://packages.ubuntu.com/trusty/wfrench
+
+    https://packages.ubuntu.com/trusty/wngerman
+
+    https://packages.ubuntu.com/trusty/wspanish
+EOF
+
+	exit 1
+}
+
+#
+#       Report an error and exit
+#
+error() {
+	echo "`basename $PROGNAME`: $1" >&2
+	exit 1
+}
+
+debug() {
+	if [ $DEBUG -ge $1 ]; then
+	    echo "`basename $PROGNAME`: $2" >&2
+	fi
+}
+
+#
+#       Process the options
+#
+DEBUG=0
+WORDS=/usr/share/dict/words
+while getopts "w:D:h?" opt
+do
+	case $opt in
+	w)	
+		case "$OPTARG" in
+		french)
+			if [ -s "$HOME/lib/geo/french" ]; then
+			    WORDS=$HOME/lib/geo/french
+			elif [ -s "/usr/lib/geo/french" ]; then
+			    WORDS=/usr/lib/geo/french
+			else
+			    error "Can't find 'french'"
+			fi
+			;;
+		german)
+			if [ -s "$HOME/lib/geo/ngerman" ]; then
+			    WORDS=$HOME/lib/geo/ngerman
+			elif [ -s "/usr/lib/geo/ngerman" ]; then
+			    WORDS=/usr/lib/geo/ngerman
+			else
+			    error "Can't find 'ngerman'"
+			fi
+			;;
+		spanish)
+			if [ -s "$HOME/lib/geo/spanish" ]; then
+			    WORDS=$HOME/lib/geo/spanish
+			elif [ -s "/usr/lib/geo/spanish" ]; then
+			    WORDS=/usr/lib/geo/spanish
+			else
+			    error "Can't find 'spanish'"
+			fi
+			;;
+		*)	 WORDS="$OPTARG";;
+		esac
+		;;
+	D)	DEBUG="$OPTARG";;
+	h|\?)	usage;;
+	esac
+done
+shift `expr $OPTIND - 1`
+
+#
+#	Main Program
+#
+if [ $# = 0 ]; then
+    usage
+fi
+
+cmd="^"
+for i in $*; do
+    case "$i" in
+    *\|*)
+	let=$i
+	;;
+    '!'*|^*)
+	let=`echo "$i" | sed -e 's/!/^/' -e "s/^/[/" -e 's/$/]/'  `
+	;;
+    *)
+	let=`echo "$i" | sed -e "s/[|,]//g" -e "s/./&|/g" -e "s/|$//"  `
+	;;
+    esac
+    # echo $let
+    cmd="$cmd($let)"
+done
+cmd="$cmd$"
+# echo $cmd
+egrep -a "$cmd" $WORDS
