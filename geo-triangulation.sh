@@ -191,7 +191,7 @@ geo_tri() {
 
 lats=0; lons=0
 geo_tri $LAT0 $LON0 $BEAR0 $LAT1 $LON1 $BEAR1 "0-1:"
-if [ $POINTS == 3 ]; then
+if [ $POINTS = 3 ]; then
     geo_tri $LAT0 $LON0 $BEAR0 $LAT2 $LON2 $BEAR2 "0-2:"
     geo_tri $LAT1 $LON1 $BEAR1 $LAT2 $LON2 $BEAR2 "1-2:"
     lat=`dc -e "$lats $POINTS/p"`

@@ -1535,7 +1535,7 @@ if [ "$TIGER" != "" ]; then
 	    Symbol[Npts]="$SYMBOL"
 	    if [ "$DEFSYMBOL" != "" ]; then
 		Symbol[Npts]="$DEFSYMBOL"
-	    elif [ "$SYMBOL" == "" ]; then
+	    elif [ "$SYMBOL" = "" ]; then
 		Symbol[Npts]="cross,red,10"
 	    fi
 	    Url[Npts]="$URL"
@@ -1577,7 +1577,7 @@ if [ "$TIGER" != "" ]; then
 	    Symbol[Npts]="$SYMBOL"
 	    if [ "$DEFSYMBOL" != "" ]; then
 		Symbol[Npts]="$DEFSYMBOL"
-	    elif [ "$SYMBOL" == "" ]; then
+	    elif [ "$SYMBOL" = "" ]; then
 		Symbol[Npts]="cross,red,10"
 	    fi
 	    Url[Npts]="$URL"
@@ -1649,7 +1649,7 @@ if [ "$TIGER" != "" ]; then
 	    Symbol[Npts]="$SYMBOL"
 	    if [ "$DEFSYMBOL" != "" ]; then
 		Symbol[Npts]="$DEFSYMBOL"
-	    elif [ "$SYMBOL" == "" ]; then
+	    elif [ "$SYMBOL" = "" ]; then
 		Symbol[Npts]="cross,red,10"
 	    fi
 	    Url[Npts]="$URL"

@@ -127,7 +127,7 @@ geocode_us_parse_db() {
 
 geocode_us(){
     URL="http://geocoder.us/service/csv?"
-    if [ "$address" == "" ]; then
+    if [ "$address" = "" ]; then
 	if [ "$city" != "" ]; then
 	    URL="$URL&city=$city"
 	fi
@@ -161,7 +161,7 @@ geocode_census(){
     URL="https://geocoding.geo.census.gov/geocoder/locations/onelineaddress"
     URL="$URL?benchmark=4"
     #URL="https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=3049+lake+shore+55391&benchmark=4"
-    if [ "$address" == "" ]; then
+    if [ "$address" = "" ]; then
 	if [ "$city" != "" ]; then
 	    URL="$URL&city=$city"
 	fi
