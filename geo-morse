@@ -277,13 +277,13 @@ if [ $ENCODE = 1 ]; then
     fi
 else
     if [ $# = 0 ]; then
-	if [ $AMERICAN == 1 ]; then
+	if [ $AMERICAN = 1 ]; then
 	    decode_american
 	else
 	    decode_morse
 	fi
     else
-	if [ $AMERICAN == 1 ]; then
+	if [ $AMERICAN = 1 ]; then
 	    echo "$*" | decode_american
 	else
 	    echo "$*" | decode_morse
